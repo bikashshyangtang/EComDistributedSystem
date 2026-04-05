@@ -1,5 +1,20 @@
 services:
 
+  gatewayservice:
+    container_name: gatewayservice
+    build:
+      context: ./ApiGateway/Gateway.Api
+      dockerfile: DockerFile
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on:
+      - customerservice
+      - productservice
+      - orderservice
+      - paymentservice  
+
   customerservice:
     container_name: customerservice
     build:
@@ -50,8 +65,10 @@ services:
       - "5003:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      OrderServiceUrl: http://orderservice:8080
       ProductServiceUrl: http://productservice:8080
     depends_on:
+      - orderservice
       - productservice
     volumes:
       - ./PaymentServiceAPI/PaymentService.Api/Data:/app/Data
