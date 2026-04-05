@@ -1,0 +1,101 @@
+{
+    "Routes":[
+        {
+            "DownstreamPathTemplate": "/api/products/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "productservice",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/gateway/products/{everything}",
+            "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+            "SwaggerKey": "product"
+        },
+        {
+            "DownstreamPathTemplate": "/api/orders/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "orderservice",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/gateway/orders/{everything}",
+            "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+            "SwaggerKey": "order"
+        },
+        {
+            "DownstreamPathTemplate": "/api/customers/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "customerservice",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/gateway/customers/{everything}",
+            "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+            "SwaggerKey": "customer"
+        },
+        {
+            "DownstreamPathTemplate": "/api/payments/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "paymentservice",
+                    "Port": 8080
+                }
+            ],
+            "UpstreamPathTemplate": "/gateway/payments/{everything}",
+            "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+            "SwaggerKey": "payment"
+        }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "http://localhost:5000"
+    },
+    "SwaggerEndPoints": [
+        {
+            "Key": "product",
+            "Config": [
+                {
+                    "Name": "Product Service",
+                    "Version": "v1",
+                    "Url": "http://productservice:8080/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "order",
+            "Config": [
+                {
+                    "Name": "Order Service",
+                    "Version": "v1",
+                    "Url": "http://orderservice:8080/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "customer",
+            "Config": [
+                {
+                    "Name": "Customer Service",
+                    "Version": "v1",
+                    "Url": "http://customerservice:8080/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "payment",
+            "Config": [
+                {
+                    "Name": "Payment Service",
+                    "Version": "v1",
+                    "Url": "http://paymentservice:8080/swagger/v1/swagger.json"
+                }
+            ]
+        }
+    ]
+}
