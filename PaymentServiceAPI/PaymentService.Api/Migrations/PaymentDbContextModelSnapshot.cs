@@ -24,11 +24,18 @@ namespace PaymentService.Api.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Api.DTOS;
 
 [ApiController]
 [Route("api/products")]
@@ -12,58 +13,84 @@ public class ProductController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        var productList = new List<ProductDetailDTO>();
+        var products = await _context.Products.ToListAsync();
+        foreach (var product in products)
+        {
+            var productDetails = new ProductDetailDTO
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                Stock = product.InventoryStock
+            };
+            productList.Add(productDetails);
+        }
+        return Ok(productList);
+    }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetProductById(int id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
         {
             return NotFound();
         }
-        return Ok(product);
+        var productDetails = new ProductDetailDTO
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Stock = product.InventoryStock
+        };
+        return Ok(productDetails);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var products = await _context.Products.ToListAsync();
-        return Ok(products);
-    }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Product product)
+    public async Task<IActionResult> Create(ProductCreateDTO productDto)
     {
+        var product = new Product
+        {
+            Name = productDto.Name,
+            Price = productDto.Price,
+            InventoryStock = productDto.Stock
+        };
         await _context.Products.AddAsync(product);
         await _context.SaveChangesAsync();
-        return Ok(product);
+        var productResponse = new ProductCreateResponseDTO
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Stock = product.InventoryStock
+        };
+        return Ok(productResponse);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Product updatedProduct)
+    public async Task<IActionResult> Update(int id, ProductCreateDTO updatedProductDto)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null)
         {
             return NotFound();
         }
-        product.Name = updatedProduct.Name;
-        product.Price = updatedProduct.Price;
-        product.InventoryStock = updatedProduct.InventoryStock;
+        product.Name = updatedProductDto.Name;
+        product.Price = updatedProductDto.Price;
+        product.InventoryStock = updatedProductDto.Stock;
         await _context.SaveChangesAsync();
-        return Ok(product);
-    }
-
-    [HttpPut("reduceStock/{id}")]
-    public async Task<IActionResult> ReduceStock([FromRoute] int id)
-    {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null)
+        var productResponse = new ProductCreateResponseDTO
         {
-            return NotFound();
-        }
-        product.InventoryStock--;
-        await _context.SaveChangesAsync();
-        return Ok(product);
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Stock = product.InventoryStock
+        };
+        return Ok(productResponse);
     }
 }

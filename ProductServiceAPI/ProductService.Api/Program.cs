@@ -9,6 +9,8 @@ builder.Services.AddDbContext<ProductDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<RabbitMQConsumer>();
+builder.Services.AddHostedService<RabbitMQRefundConsume>();
 
 var app = builder.Build();
 

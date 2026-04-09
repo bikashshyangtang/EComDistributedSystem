@@ -10,6 +10,7 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<RabbitMQPublisher>();
 builder.Services.AddHttpClient<ICustomerClient, CustomerClient>(client =>
 {
    client.BaseAddress = new Uri("http://customerservice:8080/"); 

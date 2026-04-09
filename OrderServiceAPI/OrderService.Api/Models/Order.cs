@@ -5,4 +5,6 @@ public class Order
     public decimal TotalAmount { get; set; }
     public bool IsDelivered { get; set; } = false;
     public int ProductId { get; set; }
+    public bool IsCancelled { get; set; } = false;
+
 }
