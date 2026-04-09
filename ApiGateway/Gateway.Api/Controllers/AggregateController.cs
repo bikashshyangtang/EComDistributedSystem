@@ -5,7 +5,7 @@ using System.Net.Http;
 
 
 [ApiController]
-[Route("gateway/aggregate")]
+[Route("api/aggregate")]
 public class AggregationController : ControllerBase
 {
     private readonly HttpClient _httpClient;

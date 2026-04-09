@@ -54,9 +54,20 @@
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "http://localhost:5000"
+        "BaseUrl": "http://localhost:5000",
+        "GenerateDocsForGatewayItSelf": true
     },
     "SwaggerEndPoints": [
+        {
+            "Key": "gateway",
+            "Config": [
+                {
+                    "Name": "Gateway API",
+                    "Version": "v1",
+                    "Url": "http://gatewayservice:8080/swagger/v1/swagger.json"
+                }
+            ]
+        },
         {
             "Key": "product",
             "Config": [
