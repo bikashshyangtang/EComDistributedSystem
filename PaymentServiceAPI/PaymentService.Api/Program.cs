@@ -9,6 +9,9 @@ builder.Services.AddDbContext<PaymentDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<RabbitMqPayPublisher>();
+builder.Services.AddHostedService<RabbitMqCreateConsumer>();
+builder.Services.AddHostedService<RabbitMqCancelConsumer>();
 
 builder.Services.AddHttpClient<IProductClient, ProductClient>(client =>
 {

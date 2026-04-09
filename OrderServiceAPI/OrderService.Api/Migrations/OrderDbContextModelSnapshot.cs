@@ -24,6 +24,9 @@ namespace OrderService.Api.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsDelivered")
                         .HasColumnType("INTEGER");
 

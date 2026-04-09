@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using CustomerService.Api.DTOS;
+using Microsoft.EntityFrameworkCore;
+
 
 [ApiController]
 [Route("api/customers")]
@@ -11,6 +14,24 @@ public class CustomerController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllCustomers()
+    {
+        var customers = await _context.Customers.ToListAsync();
+        var result = new List<CustomerResponseDTO>();
+        foreach (var customer in customers)
+        {
+            var customerDto = new CustomerResponseDTO
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Email = customer.Email,
+            };
+            result.Add(customerDto);
+        }
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCustomerById(int id)
     {
@@ -19,14 +40,31 @@ public class CustomerController : ControllerBase
         {
             return NotFound();
         }
-        return Ok(customer);
+        var customerDto = new CustomerResponseDTO
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            Email = customer.Email,
+        };
+        return Ok(customerDto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCustomer(Customer customer)
+    public async Task<IActionResult> CreateCustomer(CustomerCreateDTO customerDto)
     {
+        var customer = new Customer
+        {
+            Name = customerDto.Name,
+            Email = customerDto.Email,
+        };
         await _context.Customers.AddAsync(customer);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
+        var resultDto = new CustomerResponseDTO
+        {
+            Id = customer.Id,
+            Name = customer.Name,
+            Email = customer.Email
+        };
+        return Ok(resultDto);
     }
 }
