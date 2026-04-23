@@ -4,6 +4,7 @@ using Ocelot.Middleware;
 using MMLib.SwaggerForOcelot.DependencyInjection;
 using System.Net.NetworkInformation;
 using ApiGateway.Gateway.Api.Services;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddOcelot(builder.Configuration);
 //builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:5019","http://localhost:8081") // Adjust this to match your API's URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddHttpClient<IProductClient, ProductClient>(client =>
 {
@@ -48,63 +58,19 @@ app.UseSwagger();
 app.UseSwaggerForOcelotUI(options =>
 {
     options.PathToSwaggerGenerator = "/swagger/docs";
-});
-
-// app.UseSwaggerUI(c =>
-// {
-//     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway Controllers");
-//     c.RoutePrefix = "swagger";
-// });
-
-// // 2. Ocelot proxied routes — served at /api-docs/index.html
-// app.UseSwaggerForOcelotUI(options =>
-// {
-//     options.PathToSwaggerGenerator = "/swagger/docs";
-//     //options.RoutePrefix = "api-docs";
-// });
-
-// app.UseSwaggerForOcelotUI(options =>
-// {
-//     // 1. Add your local Aggregator Controllers
-//     // options.ConfigObject.Urls = new List<Swashbuckle.AspNetCore.SwaggerUI.UrlDescriptor>
-//     // {
-//     //     new Swashbuckle.AspNetCore.SwaggerUI.UrlDescriptor
-//     //     {
-//     //         Url = "/swagger/v1/swagger.json",
-//     //         Name = "Gateway (Local Aggregator)"
-//     //     }
-//     // };
-
-//     // // 2. This tells Ocelot to append the microservices to that list
-//     // options.PathToSwaggerGenerator = "/swagger/docs";
-//     options.PathToSwaggerGenerator = "/swagger/docs";
-    
-//     // This adds your local controllers to the list managed by SwaggerForOcelot
-//     options.ReRouteDataFilter = (key, routes) =>
-//     {
-//         return true; 
-//     };
-// });
-
-// app.UseSwaggerForOcelotUI(options =>
-// {
-//     options.PathToSwaggerGenerator = "/swagger/docs";
-    
-//     // This adds your local controllers to the list managed by SwaggerForOcelot
-//     options.ReRouteDataFilter = (key, routes) =>
-//     {
-//         return true; 
-//     };
-// });
-
-// If the above doesn't show the "Gateway Controllers", 
-// use this standard way to ensure the local JSON is generated:
-app.UseSwaggerUI(c =>
+},(SwaggerUIOptions uiOptions) =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway Aggregator (Local)");
-    c.RoutePrefix = "swagger-local"; // Access this at /swagger-local to see your aggregator
+    uiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "Gateway Aggregator");
 });
-app.MapControllers();
+
+app.UseRouting();
+app.UseCors();
+app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();  // AggregateController handled here
+});
 
 await app.UseOcelot();
 

@@ -1,0 +1,76 @@
+@page "/orders"
+@using FrontEnd.Models
+@using FrontEnd.Services
+@inject ApiService Api
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Orders</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Orders</h3>
+    <a href="/orders/create" class="btn btn-warning">+ Create Order</a>
+</div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (orders.Count == 0)
+{
+    <p class="text-muted">No orders yet. <a href="/orders/create">Create the first one.</a></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Customer ID</th>
+                <th>Product ID</th>
+                <th>Amount</th>
+                <th>Delivered</th>
+                <th>Cancelled</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in orders)
+            {
+                <tr>
+                    <td>@o.Id</td>
+                    <td>@o.CustomerId</td>
+                    <td>@o.ProductId</td>
+                    <td>@o.TotalAmount.ToString("C")</td>
+                    <td>
+                        <span class="badge @(o.IsDelivered ? "bg-success" : "bg-secondary")">
+                            @(o.IsDelivered ? "Yes" : "No")
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge @(o.IsCancelled ? "bg-danger" : "bg-secondary")">
+                            @(o.IsCancelled ? "Yes" : "No")
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<OrderDto>? orders;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { orders = await Api.GetOrdersAsync(); }
+        catch (Exception ex) { errorMessage = ex.Message; }
+    }
+}

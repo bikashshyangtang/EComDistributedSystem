@@ -59,16 +59,6 @@
     },
     "SwaggerEndPoints": [
         {
-            "Key": "gateway",
-            "Config": [
-                {
-                    "Name": "Gateway API",
-                    "Version": "v1",
-                    "Url": "http://gatewayservice:8080/swagger/v1/swagger.json"
-                }
-            ]
-        },
-        {
             "Key": "product",
             "Config": [
                 {

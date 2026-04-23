@@ -1,0 +1,175 @@
+@page "/products"
+@using FrontEnd.Models
+@using FrontEnd.Services
+@inject ApiService Api
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1">Products</h3>
+        <p class="text-muted mb-0" style="font-size:0.875rem">Manage your product catalogue</p>
+    </div>
+    <a href="/products/add" class="btn btn-primary">+ Add Product</a>
+</div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
+@if (successMessage != null)
+{
+    <div class="alert alert-success alert-dismissible">
+        @successMessage
+        <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+    </div>
+}
+
+@* ── Edit Modal ── *@
+@if (editingProduct != null)
+{
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1050;display:flex;align-items:center;justify-content:center">
+        <div class="card" style="width:440px;border-radius:12px;border:1px solid #e9e8f0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center"
+                 style="border-bottom:1px solid #e9e8f0;border-radius:12px 12px 0 0">
+                <span style="font-weight:500;font-size:0.95rem">Edit Product</span>
+                <button class="btn-close" @onclick="CloseEdit"></button>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label" style="font-size:0.875rem">Product Name</label>
+                    <input class="form-control" @bind="editingProduct.Name" />
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label" style="font-size:0.875rem">Price ($)</label>
+                        <input class="form-control" type="number" step="0.01" @bind="editingProduct.Price" />
+                    </div>
+                    <div class="col">
+                        <label class="form-label" style="font-size:0.875rem">Stock</label>
+                        <input class="form-control" type="number" @bind="editingProduct.Stock" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-end gap-2"
+                 style="border-top:1px solid #e9e8f0;border-radius:0 0 12px 12px">
+                <button class="btn btn-outline-secondary btn-sm" @onclick="CloseEdit">Cancel</button>
+                <button class="btn btn-primary btn-sm" @onclick="HandleSaveEdit" disabled="@isSaving">
+                    @(isSaving ? "Saving..." : "Save Changes")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card" style="border:1px solid #e9e8f0">
+    <div class="card-header bg-white py-2 px-3" style="border-bottom:1px solid #e9e8f0">
+        <span class="text-muted" style="font-size:0.8rem">@(products?.Count ?? 0) items</span>
+    </div>
+
+    @if (products == null)
+    {
+        <div class="card-body text-center text-muted py-5">
+            <div class="spinner-border spinner-border-sm me-2" style="color:#534AB7"></div> Loading...
+        </div>
+    }
+    else if (products.Count == 0)
+    {
+        <div class="card-body text-center text-muted py-5">
+            No products yet. <a href="/products/add">Add the first one.</a>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover mb-0 align-middle">
+            <thead style="background:#faf9ff">
+                <tr>
+                    <th style="width:60px;font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:500;padding:10px 16px;border-bottom:1px solid #e9e8f0">S.N</th>
+                    <th style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:500;padding:10px 16px;border-bottom:1px solid #e9e8f0">Name</th>
+                    <th style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:500;padding:10px 16px;border-bottom:1px solid #e9e8f0">Price</th>
+                    <th style="font-size:0.7rem;text-transform:uppercase;letter-spacing:.06em;color:#888;font-weight:500;padding:10px 16px;border-bottom:1px solid #e9e8f0">Stock</th>
+                    <th style="border-bottom:1px solid #e9e8f0"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < products.Count; i++)
+                {
+                    var product = products[i];
+                    var sn = i + 1;
+                    <tr>
+                        <td style="padding:12px 16px;color:#aaa;font-size:0.8rem">@sn</td>
+                        <td style="padding:12px 16px;font-weight:500;font-size:0.875rem">@product.Name</td>
+                        <td style="padding:12px 16px;font-size:0.875rem">@product.Price.ToString("C")</td>
+                        <td style="padding:12px 16px;font-size:0.875rem">@product.Stock</td>
+                        <td style="padding:12px 16px;text-align:right">
+                            <button class="btn btn-sm btn-outline-secondary" style="font-size:0.75rem"
+                                    @onclick="() => OpenEdit(product)">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<ProductResponseDto>? products;
+    private ProductResponseDto? editingProduct;
+    private bool isSaving = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        try 
+        { 
+            products = await Api.GetProductsAsync(); 
+        }
+        catch (Exception ex) 
+        { 
+            errorMessage = ex.Message; 
+        }
+    }
+
+    private void OpenEdit(ProductResponseDto product)
+    {
+        // Clone so Cancel doesn't mutate the displayed list
+        editingProduct = new ProductResponseDto
+        {
+            Id    = product.Id,
+            Name  = product.Name,
+            Price = product.Price,
+            Stock = product.Stock
+        };
+    }
+
+    private void CloseEdit() => editingProduct = null;
+
+    private async Task HandleSaveEdit()
+    {
+        if (editingProduct == null) return;
+        isSaving = true;
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            await Api.UpdateProductAsync(editingProduct);
+            successMessage = $"'{editingProduct.Name}' updated successfully.";
+            editingProduct = null;
+            await LoadProducts();
+        }
+        catch (Exception ex) 
+        { 
+            errorMessage = ex.Message; 
+        }
+        finally { isSaving = false; }
+    }
+}

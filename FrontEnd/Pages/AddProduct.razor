@@ -1,0 +1,67 @@
+@page "/products/add"
+@using FrontEnd.Models
+@using FrontEnd.Services
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/products">Products</a></li>
+        <li class="breadcrumb-item active">Add New</li>
+    </ol>
+</nav>
+
+<h3>Add Product</h3>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="card" style="max-width: 480px;">
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Product Name</label>
+            <input class="form-control" @bind="product.Name" placeholder="e.g. Wireless Keyboard" />
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">Price ($)</label>
+                <input class="form-control" type="number" step="0.01" @bind="product.Price" placeholder="0.00" />
+            </div>
+            <div class="col">
+                <label class="form-label">Stock Quantity</label>
+                <input class="form-control" type="number" @bind="product.Stock" placeholder="0" />
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" @onclick="HandleSubmit" disabled="@isSubmitting">
+                @(isSubmitting ? "Saving..." : "Save Product")
+            </button>
+            <a href="/products" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private ProductDto product = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(product.Name)) return;
+        isSubmitting = true;
+        errorMessage = null;
+        try
+        {
+            await Api.AddProductAsync(product);
+            Nav.NavigateTo("/products");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isSubmitting = false;
+        }
+    }
+}
