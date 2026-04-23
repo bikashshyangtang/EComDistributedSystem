@@ -1,0 +1,71 @@
+﻿<div class="top-row ps-3 navbar navbar-dark" style="background:#1e1b3a">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="" style="font-size:15px;font-weight:500">
+            EComStore
+        </a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu" style="background:#1e1b3a;min-height:100%">
+    <nav class="nav flex-column pt-2 px-2">
+
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);padding:4px 10px 6px;letter-spacing:.06em;text-transform:uppercase">Menu</div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link d-flex align-items-center gap-2" href="" Match="NavLinkMatch.All"
+                     style="color:rgba(255,255,255,0.55);border-radius:8px;padding:8px 10px;font-size:13px"
+                     ActiveClass="active-nav">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v2H2V3zm0 4h12v2H2V7zm0 4h8v2H2v-2z"/></svg>
+                Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link d-flex align-items-center gap-2" href="products"
+                     style="color:rgba(255,255,255,0.55);border-radius:8px;padding:8px 10px;font-size:13px"
+                     ActiveClass="active-nav">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm0 7h5v5H2V9zm7-7h5v5H9V2zm0 7h5v5H9V9z"/></svg>
+                Products
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link d-flex align-items-center gap-2" href="customers"
+                     style="color:rgba(255,255,255,0.55);border-radius:8px;padding:8px 10px;font-size:13px"
+                     ActiveClass="active-nav">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 100 6A3 3 0 008 1zm-5 9a5 5 0 0110 0v1H3v-1z"/></svg>
+                Customers
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link d-flex align-items-center gap-2" href="orders"
+                     style="color:rgba(255,255,255,0.55);border-radius:8px;padding:8px 10px;font-size:13px"
+                     ActiveClass="active-nav">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1V3zm2 4h10l-1 6H4L3 7zm3 2v3h1V9H6zm3 0v3h1V9H9z"/></svg>
+                Orders
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
+
+<style>
+    .active-nav {
+        background: #534AB7 !important;
+        color: #fff !important;
+    }
+    .nav-link:hover:not(.active-nav) {
+        background: rgba(255,255,255,0.07) !important;
+        color: rgba(255,255,255,0.85) !important;
+    }
+</style>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private void ToggleNavMenu() => collapseNavMenu = !collapseNavMenu;
+}

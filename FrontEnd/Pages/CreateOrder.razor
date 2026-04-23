@@ -1,0 +1,67 @@
+@page "/orders/create"
+@using FrontEnd.Models
+@using FrontEnd.Services
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/orders">Orders</a></li>
+        <li class="breadcrumb-item active">Create New</li>
+    </ol>
+</nav>
+
+<h3>Create Order</h3>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="card" style="max-width: 480px;">
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Customer ID</label>
+            <input class="form-control" type="number" @bind="order.CustomerId" placeholder="e.g. 1" />
+            <div class="form-text">Find IDs on the <a href="/customers" target="_blank">Customers</a> page.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Product ID</label>
+            <input class="form-control" type="number" @bind="order.ProductId" placeholder="e.g. 2" />
+            <div class="form-text">Find IDs on the <a href="/products" target="_blank">Products</a> page.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total Amount ($)</label>
+            <input class="form-control" type="number" step="0.01" @bind="order.TotalAmount" placeholder="0.00" />
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-warning" @onclick="HandleSubmit" disabled="@isSubmitting">
+                @(isSubmitting ? "Placing..." : "Place Order")
+            </button>
+            <a href="/orders" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private OrderCreateDto order = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        if (order.CustomerId <= 0 || order.ProductId <= 0 || order.TotalAmount <= 0) return;
+        isSubmitting = true;
+        errorMessage = null;
+        try
+        {
+            await Api.CreateOrderAsync(order);
+            Nav.NavigateTo("/orders");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isSubmitting = false;
+        }
+    }
+}

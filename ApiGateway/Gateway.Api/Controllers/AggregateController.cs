@@ -5,7 +5,7 @@ using System.Net.Http;
 
 
 [ApiController]
-[Route("api/aggregate")]
+[Route("gateway/aggregate")]
 public class AggregationController : ControllerBase
 {
     private readonly HttpClient _httpClient;
@@ -21,13 +21,13 @@ public class AggregationController : ControllerBase
         _customerClient = customerClient;
     }
 
-    [HttpGet("orderdetails/{orderId}")]
+    [HttpGet("{orderId}")]
     public async Task<IActionResult> GetOrderDetails(int orderId)
     {
         var order = await _orderClient.GetOrderByIdAsync(orderId);
         if (order == null)
         {
-            return NotFound();
+            return NotFound("Order not found");
         }
         var resultOrder = new OrderAggregateDTO
         {
@@ -41,19 +41,20 @@ public class AggregationController : ControllerBase
         var product = await _productClient.GetProductByIdAsync(order.ProductId);
         if (product == null)
         {
-            return NotFound();
+            return NotFound("Product not found");
         }
         var resultProduct = new ProductAggregateDTO
         {
             Id = product.Id,
             Name = product.Name,
             Price = product.Price,
-            IsAvailable = product.IsAvailable
+            IsAvailable = product.IsAvailable,
+            InventoryStock = product.InventoryStock
         };
         var customer = await _customerClient.GetCustomerByIdAsync(order.CustomerId);
         if (customer == null)
         {
-            return NotFound();
+            return NotFound("Customer not found");
         }
         var resultCustomer = new CustomerAggregateDTO
         {
